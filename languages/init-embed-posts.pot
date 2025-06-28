@@ -1,0 +1,52 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Init Embed Posts 1.1\n"
+"Language: vi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Init Embed Posts – Stylish, Fast, Portable"
+msgstr ""
+
+msgid "Embed any WordPress post externally like a Twitter Card. No iframe, no shortcode – just pure magic."
+msgstr ""
+
+msgid "Embed this post"
+msgstr ""
+
+msgid "Show featured image"
+msgstr ""
+
+msgid "Show image"
+msgstr ""
+
+msgid "Theme:"
+msgstr ""
+
+msgid "Copy"
+msgstr ""
+
+msgid "Embed code copied!"
+msgstr ""
+
+msgid "Copy embed code"
+msgstr ""
+
+msgid "Init Embed Posts Settings"
+msgstr ""
+
+msgid "Auto-insert embed button at"
+msgstr ""
+
+msgid "After the title"
+msgstr ""
+
+msgid "Before the content"
+msgstr ""
+
+msgid "After the content"
+msgstr ""
+
+msgid "Alternatively, you can insert the embed button manually by adding the <code>[init_embed_code]</code> shortcode anywhere inside the loop."
+msgstr ""

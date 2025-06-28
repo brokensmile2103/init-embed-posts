@@ -1,0 +1,52 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Init Embed Posts 1.0\n"
+"Language: vi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Init Embed Posts – Stylish, Fast, Portable"
+msgstr "Init Embed Posts – Đẹp mắt, Nhanh chóng, Dễ nhúng mọi nơi"
+
+msgid "Embed any WordPress post externally like a Twitter Card. No iframe, no shortcode – just pure magic."
+msgstr "Nhúng bài viết WordPress như Twitter Card – không cần iframe hay shortcode, chỉ thuần HTML + JS."
+
+msgid "Embed this post"
+msgstr "Nhúng bài viết này"
+
+msgid "Show featured image"
+msgstr "Hiển thị ảnh bìa bài viết"
+
+msgid "Show image"
+msgstr "Hiển thị ảnh"
+
+msgid "Theme:"
+msgstr "Giao diện:"
+
+msgid "Copy"
+msgstr "Sao chép"
+
+msgid "Embed code copied!"
+msgstr "Đã sao chép mã nhúng!"
+
+msgid "Copy embed code"
+msgstr "Sao chép mã nhúng"
+
+msgid "Init Embed Posts Settings"
+msgstr "Cài đặt Init Embed Posts"
+
+msgid "Auto-insert embed button at"
+msgstr "Tự động chèn nút nhúng tại"
+
+msgid "After the title"
+msgstr "Sau tiêu đề"
+
+msgid "Before the content"
+msgstr "Trước nội dung"
+
+msgid "After the content"
+msgstr "Sau nội dung"
+
+msgid "Alternatively, you can insert the embed button manually by adding the <code>[init_embed_code]</code> shortcode anywhere inside the loop."
+msgstr "Hoặc bạn có thể tự chèn nút nhúng bằng cách thêm shortcode <code>[init_embed_code]</code> vào bất kỳ vị trí nào trong vòng lặp."

@@ -1,0 +1,297 @@
+/* Trigger button */
+.iep-embed-ui {
+    display: inline-block;
+    position: relative;
+    vertical-align: middle;
+    height: 20px;
+    margin-top: 0;
+}
+
+.iep-embed-ui .iep-copy-btn {
+    background: none;
+    border: none;
+    padding: 0 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+    color: #111;
+    font-size: 14px;
+    position: relative;
+    outline: none;
+}
+
+.iep-embed-ui .iep-copy-btn:hover {
+    color: #0073aa;
+}
+
+.iep-embed-ui .iep-copy-btn::after {
+    content: attr(aria-label);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #111;
+    color: #fff;
+    padding: 4px 8px;
+    font-size: 12px;
+    border-radius: 4px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 10;
+}
+
+.iep-embed-ui .iep-copy-btn:hover::after {
+    opacity: 1;
+}
+
+/* Dark mode */
+.iep-embed-ui.iep-dark .iep-copy-btn {
+    color: #eee;
+}
+
+.iep-embed-ui.iep-dark .iep-copy-btn:hover {
+    color: #4dc3ff;
+}
+
+.iep-embed-ui.iep-dark .iep-copy-btn::after {
+    background: #eee;
+    color: #111;
+}
+
+/* Modal overlay */
+#iep-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    animation: iepFadeIn 0.3s ease-out forwards;
+    backdrop-filter: blur(2px);
+}
+
+/* Modal content */
+#iep-modal .iep-modal-content {
+    background: #fff;
+    color: #333;
+    width: 90%;
+    max-width: 500px;
+    padding: 20px;
+    margin: 10% auto;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+    animation: iepSlideDown 0.3s ease-out forwards;
+    box-sizing: border-box;
+    opacity: 0;
+    transform: translateY(-20px);
+}
+
+
+#iep-modal .init-embed-title {
+    margin-top: 0;
+    margin-bottom: 30px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* Close button */
+#iep-modal .iep-modal-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #333;
+    transition: color 0.2s ease;
+}
+
+#iep-modal .iep-modal-close:hover {
+    color: #000;
+}
+
+/* Labels and controls */
+#iep-modal label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 15px;
+    font-weight: 400;
+}
+
+#iep-modal input[type="checkbox"] {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-top: -4px;
+    vertical-align: middle;
+    appearance: none;
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    transition: 0.2s ease-in-out;
+    transition-property: background-color, border;
+    cursor: pointer;
+}
+
+/* Focus */
+#iep-modal input[type="checkbox"]:focus {
+    outline: none;
+    border-color: #1e87f0;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+/* Checked */
+#iep-modal input[type="checkbox"]:checked {
+    background-color: #1e87f0;
+    border-color: transparent;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2214%22%20height%3D%2211%22%20viewBox%3D%220%200%2014%2011%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpolygon%20fill%3D%22%23fff%22%20points%3D%2212%201%205%207.5%202%205%201%205.5%205%2010%2013%201.5%22%2F%3E%3C%2Fsvg%3E");
+}
+
+/* Focus + checked */
+#iep-modal input[type="checkbox"]:checked:focus {
+    background-color: #0e6dcd;
+}
+
+/* Disabled */
+#iep-modal input[type="checkbox"]:disabled {
+    background-color: #f8f8f8;
+    border-color: #e5e5e5;
+    cursor: not-allowed;
+}
+
+#iep-modal input[type="checkbox"]:disabled:checked {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2214%22%20height%3D%2211%22%20viewBox%3D%220%200%2014%2011%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpolygon%20fill%3D%22%23999%22%20points%3D%2212%201%205%207.5%202%205%201%205.5%205%2010%2013%201.5%22%2F%3E%3C%2Fsvg%3E");
+}
+
+#iep-modal select#iep-theme {
+    border: none;
+    border-bottom: 1px solid #333;
+    padding: 5px 10px;
+    margin-left: 5px;
+    font-size: 15px;
+    background: transparent;
+    color: inherit;
+    outline: none;
+}
+
+/* Embed code box */
+#iep-modal #iep-code {
+    width: 100%;
+    min-height: 160px;
+    padding: 10px;
+    font-size: 15px;
+    font-family: Consolas, Monaco, 'Courier New', monospace;
+    resize: vertical;
+    border: 1px solid #333;
+    border-radius: 6px;
+    background: #fff;
+    color: #000;
+    outline: none;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+    transition: box-shadow 0.2s ease;
+}
+
+#iep-modal #iep-code:focus {
+    box-shadow: 0 0 0 2px #0073aa44;
+}
+
+/* Copy button */
+#iep-modal button[type="button"]:not(.iep-modal-close) {
+    padding: 8px 20px;
+    font-size: 14px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    background: #111;
+    color: #fff;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+}
+
+#iep-modal button[type="button"]:not(.iep-modal-close):hover {
+    background: #444;
+}
+
+/* Animations */
+@keyframes iepFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes iepSlideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* === DARK MODE SUPPORT === */
+#iep-modal.iep-dark .iep-modal-content {
+    background: #111;
+    color: #eee;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+#iep-modal.iep-dark .iep-modal-close {
+    color: #aaa;
+}
+
+#iep-modal.iep-dark .iep-modal-close:hover {
+    color: #fff;
+}
+
+#iep-modal.iep-dark .init-embed-title,
+#iep-modal.iep-dark label {
+    color: #ccc;
+}
+
+#iep-modal.iep-dark input[type="checkbox"] {
+    border-color: #666;
+}
+
+#iep-modal.iep-dark input[type="checkbox"]:checked {
+    background-color: #4dc3ff;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2214%22%20height%3D%2211%22%20viewBox%3D%220%200%2014%2011%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpolygon%20fill%3D%22%23111%22%20points%3D%2212%201%205%207.5%202%205%201%205.5%205%2010%2013%201.5%22%2F%3E%3C%2Fsvg%3E");
+    border-color: transparent;
+}
+
+#iep-modal.iep-dark input[type="checkbox"]:focus {
+    border-color: #4dc3ff;
+}
+
+#iep-modal.iep-dark select#iep-theme {
+    border-bottom: 1px solid #999;
+    color: #eee;
+}
+
+#iep-modal.iep-dark #iep-code {
+    background: #222;
+    color: #eee;
+    border-color: #555;
+}
+
+#iep-modal.iep-dark #iep-code:focus {
+    box-shadow: 0 0 0 2px #4dc3ff44;
+}
+
+#iep-modal.iep-dark button[type="button"]:not(.iep-modal-close) {
+    background: #eee;
+    color: #111;
+}
+
+#iep-modal.iep-dark button[type="button"]:not(.iep-modal-close):hover {
+    background: #fff;
+}
