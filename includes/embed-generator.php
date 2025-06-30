@@ -7,7 +7,7 @@ defined( 'ABSPATH' ) || exit;
 function init_plugin_suite_embed_posts_render_button( $atts = [] ) {
     global $post;
     if ( ! $post || empty( $post->ID ) ) return '';
-
+    
     $post_id   = (int) $post->ID;
     $post_type = get_post_type( $post_id );
 

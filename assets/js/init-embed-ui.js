@@ -130,10 +130,19 @@ document.addEventListener('keydown', function (e) {
 
 // Dark mode auto
 function getEffectiveTheme() {
-    const theme = window.InitPluginSuiteEmbedPostsConfig?.theme;
-    return theme === 'dark' || theme === 'light'
-        ? theme
-        : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    const theme = window.InitPluginSuiteEmbedPostsConfig?.theme || 'light';
+
+    if (theme === 'light' || theme === 'dark') {
+        return theme;
+    }
+
+    // Only if theme is explicitly set to 'auto'
+    if (theme === 'auto') {
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+
+    // Fallback just in case
+    return 'light';
 }
 
 // DOM loaded: gán theme + xử lý click ngoài modal

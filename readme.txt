@@ -4,7 +4,7 @@ Tags: embed, wordpress card, post preview, woocommerce, rest api
 Requires at least: 5.5  
 Tested up to: 6.8  
 Requires PHP: 7.4  
-Stable tag: 1.1  
+Stable tag: 1.2  
 License: GPLv2 or later  
 License URI: https://www.gnu.org/licenses/gpl-2.0.html  
 
@@ -15,6 +15,10 @@ Embed WordPress posts or products anywhere – like a Twitter Card. No iframe. N
 Init Embed Posts lets you embed WordPress content externally – with beautiful cards, real-time REST API data, and zero friction.
 
 Instead of using iframes or clunky oEmbed, this plugin gives you clean `<div>` + `<script>` snippets, which load the post or product dynamically using WordPress REST API. Designed for speed, style, and full control – using pure JavaScript and smart caching.
+
+This plugin is part of the [Init Plugin Suite](https://en.inithtml.com/init-plugin-suite-minimalist-powerful-and-free-wordpress-plugins/) — a collection of minimalist, fast, and developer-focused tools for WordPress.
+
+GitHub repository: [https://github.com/brokensmile2103/init-embed-posts](https://github.com/brokensmile2103/init-embed-posts)
 
 **Features:**
 
@@ -113,25 +117,30 @@ Yes. Go to Settings → Init Embed Posts and uncheck all positions.
 1. Modal code generator  
 2. Embed card – post  
 3. Embed card – product  
+4. Embed card – post with images 
 
 == Changelog ==
 
+= 1.2 – June 30, 2025 =
+- Add `uninstall.php` to clean up settings on deletion  
+- Change default theme from `auto` to `light` for better compatibility  
+
 = 1.1 – June 14, 2025 =
-* Add support for WooCommerce product embeds  
-* New REST endpoint: `/product/{id}`  
-* Product embed supports featured image, price, sale price (with strikethrough), and dark mode  
-* Auto-insert embed button after product meta (if enabled)  
-* Embed code now includes `data-type` to switch JS logic  
-* New embed script: `init-embed-product.js`  
-* Cleaned up UI styles and fixed edge cases  
+- Add support for WooCommerce product embeds  
+- New REST endpoint: `/product/{id}`  
+- Product embed supports featured image, price, sale price (with strikethrough), and dark mode  
+- Auto-insert embed button after product meta (if enabled)  
+- Embed code now includes `data-type` to switch JS logic  
+- New embed script: `init-embed-product.js`  
+- Cleaned up UI styles and fixed edge cases  
 
 = 1.0 – June 9, 2025 =
-* Initial release  
-* Embed any post with responsive card  
-* Modal UI for embed code generation  
-* REST API with cache-friendly headers  
-* Vanilla JS – lightweight and dependency-free  
-* Works anywhere, no iframe/oEmbed needed
+- Initial release  
+- Embed any post with responsive card  
+- Modal UI for embed code generation  
+- REST API with cache-friendly headers  
+- Vanilla JS – lightweight and dependency-free  
+- Works anywhere, no iframe/oEmbed needed
 
 == License ==
 
