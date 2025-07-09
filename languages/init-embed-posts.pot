@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Init Embed Posts 1.1\n"
+"Project-Id-Version: Init Embed Posts\n"
 "Language: vi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -49,4 +49,19 @@ msgid "After the content"
 msgstr ""
 
 msgid "Alternatively, you can insert the embed button manually by adding the <code>[init_embed_code]</code> shortcode anywhere inside the loop."
+msgstr ""
+
+msgid "Show post meta"
+msgstr ""
+
+msgid "Show review"
+msgstr ""
+
+msgid "Light"
+msgstr ""
+
+msgid "Dark"
+msgstr ""
+
+msgid "Auto"
 msgstr ""

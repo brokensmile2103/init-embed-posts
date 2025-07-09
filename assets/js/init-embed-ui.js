@@ -1,90 +1,127 @@
 const IEP = {
     postId: null,
-    scriptUrl: InitEmbedPostsSettings?.embed_url || location.origin + '/wp-content/plugins/init-embed-posts/assets/js/init-embed.js',
-    productScriptUrl: InitEmbedPostsSettings?.product_url || location.origin + '/wp-content/plugins/init-embed-posts/assets/js/init-embed-product.js',
+    scriptUrl: InitEmbedPostsSettings?.embed_url || '',
+    productScriptUrl: InitEmbedPostsSettings?.product_url || '',
 
     openModal(buttonEl) {
-        const modal = document.getElementById('iep-modal');
-        const featuredCheckbox = document.getElementById('iep-show-featured');
-        const checkbox = document.getElementById('iep-show-image');
-        const themeSelect = document.getElementById('iep-theme');
-
-        if (!modal || !checkbox || !themeSelect || !featuredCheckbox) {
-            console.warn('[IEP] Modal or inputs not found.');
-            return;
-        }
-
         const wrapper = buttonEl.closest('.iep-embed-ui');
-        if (!wrapper) {
-            console.warn('[IEP] Embed UI wrapper not found.');
-            return;
+        const id = wrapper?.dataset?.id;
+        if (!wrapper || !id) return;
+
+        this.postId = id;
+
+        if (!document.getElementById('iep-modal')) {
+            this.renderModal();
         }
 
-        const postId = wrapper.dataset.id;
-        if (!postId) {
-            console.warn('[IEP] data-id missing in wrapper.');
-            return;
-        }
+        const modal = document.getElementById('iep-modal');
+        modal.classList.add('is-active');
+        IEP.justOpened = true;
+        setTimeout(() => IEP.justOpened = false, 100);
 
-        IEP.postId = postId;
-        modal.style.display = 'block';
+        this.updateCode();
 
-        IEP.updateCode();
-
-        featuredCheckbox.onchange = IEP.updateCode;
-        checkbox.onchange = IEP.updateCode;
-        themeSelect.onchange = IEP.updateCode;
+        modal.querySelector('#iep-show-featured').onchange = this.updateCode.bind(this);
+        modal.querySelector('#iep-show-image').onchange = this.updateCode.bind(this);
+        modal.querySelector('#iep-show-meta')?.addEventListener('change', this.updateCode.bind(this));
+        modal.querySelector('#iep-show-review')?.addEventListener('change', this.updateCode.bind(this));
+        modal.querySelector('#iep-theme').onchange = this.updateCode.bind(this);
     },
 
     closeModal() {
         const modal = document.getElementById('iep-modal');
-        if (modal) {
-            modal.style.display = 'none';
+        modal.classList.remove('is-active');
+    },
+
+    renderModal() {
+        const i18n = InitEmbedPostsSettings?.i18n || {};
+
+        // Determine theme for modal
+        let modalClass = 'iep-modal';
+        const globalTheme = window.InitPluginSuiteEmbedPostsConfig?.theme || 'light';
+
+        if (
+            globalTheme === 'dark' ||
+            (globalTheme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        ) {
+            modalClass += ' iep-dark';
         }
+
+        const html = `
+            <div id="iep-modal" class="${modalClass}">
+                <div class="iep-modal-content">
+                    <button type="button" class="iep-modal-close" onclick="IEP.closeModal()">
+                        <svg width="20" height="20" viewBox="0 0 24 24"><path d="m21 21-9-9m0 0L3 3m9 9 9-9m-9 9-9 9" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    </button>
+                    <h3 class="init-embed-title">${i18n.embed_this_post || 'Embed this post'}</h3>
+
+                    <label><input type="checkbox" id="iep-show-featured" checked> ${i18n.show_featured || 'Show featured image'}</label>
+                    <label><input type="checkbox" id="iep-show-meta" checked> ${i18n.show_meta || 'Show post meta'}</label>
+                    <label><input type="checkbox" id="iep-show-image" checked> ${i18n.show_image || 'Show image'}</label>
+                    ${document.querySelector('.init-review-system') ? `
+                    <label><input type="checkbox" id="iep-show-review" checked> ${i18n.show_review || 'Show review'}</label>
+                    ` : ''}
+
+                    <label>
+                        ${i18n.theme || 'Theme:'}
+                        <select id="iep-theme">
+                            <option value="light">${i18n.light || 'Light'}</option>
+                            <option value="dark">${i18n.dark || 'Dark'}</option>
+                            <option value="auto">${i18n.auto || 'Auto'}</option>
+                        </select>
+                    </label>
+
+                    <textarea id="iep-code" readonly></textarea>
+                    <button type="button" onclick="IEP.copyCode()">${i18n.copy || 'Copy'}</button>
+                </div>
+            </div>
+        `;
+
+        document.body.insertAdjacentHTML('beforeend', html);
     },
 
     updateCode() {
-        const id = IEP.postId;
-        const checkbox = document.getElementById('iep-show-image');
+        const id = this.postId;
         const featuredCheckbox = document.getElementById('iep-show-featured');
+        const imageCheckbox = document.getElementById('iep-show-image');
         const themeSelect = document.getElementById('iep-theme');
         const textarea = document.getElementById('iep-code');
 
-        if (!checkbox || !featuredCheckbox || !themeSelect || !textarea || !id) return;
+        if (!id || !featuredCheckbox || !imageCheckbox || !themeSelect || !textarea) return;
 
-        const showImage = checkbox.checked;
         const showFeatured = featuredCheckbox.checked;
+        const metaCheckbox = document.getElementById('iep-show-meta');
+        const showImage = imageCheckbox.checked;
+        const reviewCheckbox = document.getElementById('iep-show-review');
         const theme = themeSelect.value;
-        const origin = location.origin;
 
         const wrapper = document.querySelector(`.iep-embed-ui[data-id="${id}"]`);
         const type = wrapper?.dataset?.type || 'post';
         const cartText = wrapper?.dataset?.cart;
+        const origin = location.origin;
 
         let attrs = `data-id="${id}" data-origin="${origin}"`;
-
-        if (!showImage) attrs += ` data-image="0"`;
         if (!showFeatured) attrs += ` data-featured="0"`;
-        if (theme === 'dark') attrs += ` data-theme="dark"`;
-        if (theme === 'auto') attrs += ` data-theme="auto"`;
+        if (metaCheckbox && !metaCheckbox.checked) attrs += ` data-meta="0"`;
+        if (!showImage) attrs += ` data-image="0"`;
+        if (reviewCheckbox && !reviewCheckbox.checked) attrs += ` data-review="0"`;
+        if (theme !== 'light') attrs += ` data-theme="${theme}"`;
         if (type !== 'post') attrs += ` data-type="${type}"`;
         if (cartText) attrs += ` data-cart="${cartText}"`;
 
-        const scriptSrc = type === 'product' ? IEP.productScriptUrl : IEP.scriptUrl;
-        const embedClass = type === 'product' ? 'init-embed-product' : 'init-embed';
+        const script = type === 'product' ? this.productScriptUrl : this.scriptUrl;
+        const wrapperClass = type === 'product' ? 'init-embed-product' : 'init-embed';
 
-        const html = `<div class="${embedClass}" ${attrs}></div>\n<script async src="${scriptSrc}"></script>`;
-
-        textarea.value = html;
+        const embed = `<div class="${wrapperClass}" ${attrs}></div>\n<script async src="${script}"></script>`;
+        textarea.value = embed;
     },
 
     copyCode() {
         const textarea = document.getElementById('iep-code');
         if (!textarea) return;
-
         textarea.select();
         document.execCommand('copy');
-        IEP.toast(InitEmbedPostsSettings?.i18n?.copied || 'Embed code copied!');
+        this.toast(InitEmbedPostsSettings?.i18n?.copied || 'Embed code copied!');
     },
 
     toast(message = 'Copied!') {
@@ -94,26 +131,24 @@ const IEP = {
         const toast = document.createElement('div');
         toast.id = 'iep-toast';
         toast.textContent = message;
-        toast.style.position = 'fixed';
-        toast.style.bottom = '30px';
-        toast.style.left = '50%';
-        toast.style.transform = 'translateX(-50%)';
-        toast.style.background = '#111';
-        toast.style.color = '#fff';
-        toast.style.padding = '10px 20px';
-        toast.style.fontSize = '14px';
-        toast.style.borderRadius = '6px';
-        toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
-        toast.style.zIndex = '10000';
-        toast.style.opacity = '0';
-        toast.style.transition = 'opacity 0.3s ease';
+        Object.assign(toast.style, {
+            position: 'fixed',
+            bottom: '30px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            background: '#111',
+            color: '#fff',
+            padding: '10px 20px',
+            fontSize: '14px',
+            borderRadius: '6px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+            zIndex: '10000',
+            opacity: '0',
+            transition: 'opacity 0.3s ease'
+        });
 
         document.body.appendChild(toast);
-
-        setTimeout(() => {
-            toast.style.opacity = '1';
-        }, 10);
-
+        setTimeout(() => toast.style.opacity = '1', 10);
         setTimeout(() => {
             toast.style.opacity = '0';
             setTimeout(() => toast.remove(), 300);
@@ -122,47 +157,18 @@ const IEP = {
 };
 
 // ESC để đóng modal
-document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') {
-        IEP.closeModal();
-    }
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') IEP.closeModal();
 });
 
-// Dark mode auto
-function getEffectiveTheme() {
-    const theme = window.InitPluginSuiteEmbedPostsConfig?.theme || 'light';
-
-    if (theme === 'light' || theme === 'dark') {
-        return theme;
-    }
-
-    // Only if theme is explicitly set to 'auto'
-    if (theme === 'auto') {
-        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    }
-
-    // Fallback just in case
-    return 'light';
-}
-
-// DOM loaded: gán theme + xử lý click ngoài modal
-document.addEventListener('DOMContentLoaded', function () {
+// Click ngoài modal
+document.addEventListener('click', e => {
     const modal = document.getElementById('iep-modal');
-    const wrappers = document.querySelectorAll('.iep-embed-ui');
 
-    const theme = getEffectiveTheme();
+    if (!modal || !modal.classList.contains('is-active') || IEP.justOpened) return;
 
-    if (theme === 'dark') {
-        wrappers.forEach(w => w.classList.add('iep-dark'));
-        if (modal) modal.classList.add('iep-dark');
-    }
-
-    if (modal) {
-        modal.addEventListener('click', function (e) {
-            const isOutsideModal = !e.target.closest('.iep-modal-content');
-            if (isOutsideModal) {
-                IEP.closeModal();
-            }
-        });
+    const content = modal.querySelector('.iep-modal-content');
+    if (content && !content.contains(e.target)) {
+        IEP.closeModal();
     }
 });

@@ -4,7 +4,7 @@
     position: relative;
     vertical-align: middle;
     height: 20px;
-    margin-top: 0;
+    margin-top: 0 !important;
 }
 
 .iep-embed-ui .iep-copy-btn {
@@ -72,6 +72,10 @@
     background: rgba(0, 0, 0, 0.4);
     animation: iepFadeIn 0.3s ease-out forwards;
     backdrop-filter: blur(2px);
+}
+
+#iep-modal.is-active {
+    display: block;
 }
 
 /* Modal content */

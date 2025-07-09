@@ -63,19 +63,24 @@
     border-radius: 5px;
     flex-shrink: 0;
 }
+.${EMBED_CLASS} .embed-time,
 .${EMBED_CLASS} .embed-meta {
     font-size: 14px;
     color: #666;
 }
+.${EMBED_CLASS} .embed-info-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.${EMBED_CLASS}[data-theme="dark"] .embed-time,
 .${EMBED_CLASS}[data-theme="dark"] .embed-meta {
     color: #aaa;
 }
-.${EMBED_CLASS} .embed-time {
-    font-size: 13px;
-    color: #999;
-}
-.${EMBED_CLASS}[data-theme="dark"] .embed-time {
-    color: #777;
+.${EMBED_CLASS} .embed-time svg,
+.${EMBED_CLASS} .embed-meta svg {
+    vertical-align: middle;
 }
 .${EMBED_CLASS} .embed-featured {
     position: relative;
@@ -139,6 +144,21 @@
     flex-shrink: 0;
     scroll-snap-align: start;
 }
+.${EMBED_CLASS} .embed-review {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.${EMBED_CLASS} .init-review-info {
+    font-size: 16px;
+}
+.${EMBED_CLASS} .embed-review-stars {
+    display: flex;
+    gap: 3px;
+}
+.${EMBED_CLASS} .embed-review-stars svg {
+    flex-shrink: 0;
+}
 .${EMBED_CLASS} .skeleton {
     background: #eee;
     height: 1em;
@@ -160,6 +180,7 @@
     function renderSkeleton(container) {
         const showFeatured = container.dataset.featured !== '0';
         const showImage = container.dataset.image !== '0';
+        const showReview = container.dataset.review !== '0';
 
         const lines = [];
 
@@ -176,6 +197,10 @@
 
         // Excerpt (giả 3 dòng gộp lại)
         lines.push(`<div class="skeleton" style="width: 100%; height: 72px;"></div>`);
+
+        if (showReview) {
+            lines.push(`<div class="skeleton" style="width: 50%; height: 27px;"></div>`);
+        }
 
         // Image placeholder nếu có
         if (showImage) {
@@ -199,32 +224,93 @@
             url,
             images,
             thumbnail,
-            published_at
+            published_at,
+            comment_count,
+            view_count,
+            review
         } = data;
 
-        const date = new Date(published_at);
-        const dateStr = date.toLocaleDateString(undefined, {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        });
+        const dateStr = published_at;
 
+        const showMeta = container.dataset.meta !== '0';
+        const showReview = container.dataset.review !== '0';
+        const showFeatured = config.showFeatured;
+        const showImage = config.showImage;
+
+        const svgClock = `<svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true" fill="currentColor"><path d="M 2,3 2,17 18,17 18,3 2,3 Z M 17,16 3,16 3,8 17,8 17,16 Z M 17,7 3,7 3,4 17,4 17,7 Z"></path><rect width="1" height="3" x="6" y="2"></rect><rect width="1" height="3" x="13" y="2"></rect></svg>`;
+
+        const svgComment = `<svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><path fill="currentColor" d="M6,18.71 L6,14 L1,14 L1,1 L19,1 L19,14 L10.71,14 L6,18.71 L6,18.71 Z M2,13 L7,13 L7,16.29 L10.29,13 L18,13 L18,2 L2,2 L2,13 L2,13 Z"></path></svg>`;
+
+        const svgView = `<svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><circle fill="none" stroke="currentColor" cx="10" cy="10" r="3.45"></circle><path fill="none" stroke="currentColor" d="m19.5,10c-2.4,3.66-5.26,7-9.5,7h0,0,0c-4.24,0-7.1-3.34-9.49-7C2.89,6.34,5.75,3,9.99,3h0,0,0c4.25,0,7.11,3.34,9.5,7Z"></path></svg>`;
+
+        // Ảnh featured
         let featuredHTML = '';
-        if (config.showFeatured && thumbnail) {
+        if (showFeatured && thumbnail) {
             featuredHTML = `
                 <div class="embed-featured">
                     <img src="${thumbnail}" loading="lazy" alt="Featured image">
                 </div>`;
         }
 
+        // Meta: ngày tháng + view + comment
+        let metaInfo = '';
+        if (showMeta) {
+            const parts = [];
+            if (typeof comment_count === 'number') {
+                parts.push(`${svgComment} ${comment_count}`);
+            }
+            if (typeof view_count === 'number') {
+                parts.push(`${svgView} ${view_count.toLocaleString()}`);
+            }
+
+            metaInfo = `
+                <div class="embed-info-row">
+                    <div class="embed-time">${svgClock} ${dateStr}</div>
+                    ${parts.map(text => `<div class="embed-meta">${text}</div>`).join('')}
+                </div>
+            `;
+        } else {
+            metaInfo = `<div class="embed-time">${svgClock} ${dateStr}</div>`;
+        }
+
+        // Ảnh gallery
         let imgHTML = '';
-        if (config.showImage && images && images.length) {
+        if (showImage && images && images.length) {
             imgHTML = `
                 <div class="embed-images">
                     ${images.map(src => `<img src="${src}" loading="lazy">`).join('')}
                 </div>`;
         }
 
+        // Review
+        let reviewHTML = '';
+        if (showReview && review && review.total > 0) {
+            const rating = review.average;
+            const count = review.total;
+            const stars = [];
+
+            for (let i = 1; i <= 5; i++) {
+                const active = i <= Math.round(rating);
+                stars.push(`
+                    <svg width="20" height="20" viewBox="0 0 64 64" style="color: ${active ? '#f39c12' : '#ccc'}">
+                        <path fill="currentColor" d="M63.9 24.28a2 2 0 0 0-1.6-1.35l-19.68-3-8.81-18.78a2 2 0 0 0-3.62 0l-8.82 18.78-19.67 3a2 2 0 0 0-1.13 3.38l14.3 14.66-3.39 20.7a2 2 0 0 0 2.94 2.07L32 54.02l17.57 9.72a2 2 0 0 0 2.12-.11 2 2 0 0 0 .82-1.96l-3.38-20.7 14.3-14.66a2 2 0 0 0 .46-2.03"></path>
+                    </svg>
+                `);
+            }
+
+            reviewHTML = `
+                <div class="embed-review">
+                    <div class="embed-review-stars">
+                        ${stars.join('')}
+                    </div>
+                    <div class="init-review-info">
+                        <strong>${rating}</strong><sub>/5</sub> (${count})
+                    </div>
+                </div>
+            `;
+        }
+
+        // Final render
         container.innerHTML = `
             <a class="embed-inner" href="${url}" target="_blank" rel="noopener noreferrer">
                 ${featuredHTML}
@@ -232,11 +318,12 @@
                     <img class="embed-favicon" src="${favicon}" alt="favicon">
                     <div>
                         <div class="embed-meta">${site_name} @${site_domain}</div>
-                        <div class="embed-time">${dateStr}</div>
+                        ${metaInfo}
                     </div>
                 </div>
                 <div class="embed-title max-2-line">${title}</div>
                 <div class="embed-excerpt max-4-line">${excerpt}</div>
+                ${reviewHTML}
                 ${imgHTML}
             </a>
         `;

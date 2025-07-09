@@ -50,3 +50,18 @@ msgstr "Sau nội dung"
 
 msgid "Alternatively, you can insert the embed button manually by adding the <code>[init_embed_code]</code> shortcode anywhere inside the loop."
 msgstr "Hoặc bạn có thể tự chèn nút nhúng bằng cách thêm shortcode <code>[init_embed_code]</code> vào bất kỳ vị trí nào trong vòng lặp."
+
+msgid "Show post meta"
+msgstr "Hiển thị thông tin bài viết"
+
+msgid "Show review"
+msgstr "Hiển thị đánh giá"
+
+msgid "Light"
+msgstr "Sáng"
+
+msgid "Dark"
+msgstr "Tối"
+
+msgid "Auto"
+msgstr "Tự động"

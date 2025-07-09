@@ -1,12 +1,12 @@
 === Init Embed Posts – Stylish, Fast, Portable ===
-Contributors: brokensmile.2103  
-Tags: embed, wordpress card, post preview, woocommerce, rest api  
-Requires at least: 5.5  
-Tested up to: 6.8  
-Requires PHP: 7.4  
-Stable tag: 1.2  
-License: GPLv2 or later  
-License URI: https://www.gnu.org/licenses/gpl-2.0.html  
+Contributors: brokensmile.2103
+Tags: embed, wordpress card, post preview, woocommerce, rest api
+Requires at least: 5.5
+Tested up to: 6.8
+Requires PHP: 7.4
+Stable tag: 1.3
+License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Embed WordPress posts or products anywhere – like a Twitter Card. No iframe. No oEmbed. Just pure JS, full control, and beautiful design.
 
@@ -62,6 +62,9 @@ These filters give you full control over how data is rendered and returned.
 
 - `init_plugin_suite_embed_products_rest_response`  
   Modify REST API response for Woo products.
+
+- `init_plugin_suite_embed_posts_view_count_keys`  
+  Customize the list of post meta keys used to detect view count. Supports array of meta keys, ordered by priority.
 
 **Excerpt filters:**
 
@@ -120,6 +123,18 @@ Yes. Go to Settings → Init Embed Posts and uncheck all positions.
 4. Embed card – post with images 
 
 == Changelog ==
+
+= 1.3 – July 9, 2025 =
+- Refactor embed modal: now fully rendered via JavaScript, no PHP template used
+- Add two new toggle options in modal: "Show post meta" and "Show review"
+- Post meta now displays published time, view count, and comment count with icons
+- Review support: renders 5-star rating and average score if Init Review System is active
+- Enhance REST API:
+  - Add `comment_count`, `view_count`, and `review` data
+  - Support multiple view count plugins (Jetpack, WP-PostViews, WP Statistics, Post Views Counter)
+  - Allow custom view field via `init_plugin_suite_embed_posts_view_count_keys` filter
+- `published_at` now returns human-readable time difference (e.g. `2 days`) instead of ISO
+- Minor UI adjustments and cleaner card layout
 
 = 1.2 – June 30, 2025 =
 - Add `uninstall.php` to clean up settings on deletion  

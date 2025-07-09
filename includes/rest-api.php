@@ -56,7 +56,8 @@ function init_plugin_suite_embed_posts_get_post_data( $request ) {
         'id'            => $post_id,
         'title'         => get_the_title( $post ),
         'excerpt'       => wp_trim_words( $raw_excerpt, 40, '…' ),
-        'published_at'  => get_the_date( 'c', $post_id ),
+        'published_at'  => human_time_diff( get_post_time( 'U', true, $post_id ), current_time( 'timestamp' ) ),
+        'published_date'=> get_the_date( 'c', $post_id ),
         'url'           => get_permalink( $post_id ),
         'favicon'       => $favicon,
         'site_name'     => $site_name,
@@ -64,7 +65,33 @@ function init_plugin_suite_embed_posts_get_post_data( $request ) {
         'site_domain'   => $site_domain,
         'thumbnail'     => get_the_post_thumbnail_url( $post_id, 'medium_large' ),
         'images'        => $images,
+        'comment_count' => intval( get_comments_number( $post_id ) ),
     ];
+
+    // Xác định key lượt xem theo độ ưu tiên
+    $view_keys = [
+        '_init_view_count',             // Init View Count
+        '_jetpack_post_views_count',    // Jetpack
+        'views',                        // WP-PostViews
+        '_wp_statistics_visitor',       // WP Statistics
+        'post_views_count',             // Post Views Counter
+    ];
+
+    // Cho phép filter bổ sung/thay đổi thứ tự key
+    $view_keys = apply_filters( 'init_plugin_suite_embed_posts_view_count_keys', $view_keys, $post_id );
+
+    // Lặp qua key và lấy cái đầu tiên có giá trị hợp lệ
+    foreach ( $view_keys as $key ) {
+        $val = get_post_meta( $post_id, $key, true );
+        if ( is_numeric( $val ) ) {
+            $response['view_count'] = intval( $val );
+            break;
+        }
+    }
+
+    if ( defined( 'INIT_PLUGIN_SUITE_RS_VERSION' ) && function_exists( 'init_plugin_suite_review_system_get_rating_data' ) ) {
+        $response['review'] = init_plugin_suite_review_system_get_rating_data( $post_id );
+    }
 
     $response = apply_filters( 'init_plugin_suite_embed_posts_rest_response', $response, $post );
 

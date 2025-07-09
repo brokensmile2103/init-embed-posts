@@ -3,7 +3,7 @@
  * Plugin Name: Init Embed Posts
  * Plugin URI: https://inithtml.com/plugin/init-embed-posts/
  * Description: Embed any WordPress post externally like a Twitter Card. No iframe, no shortcode – just pure magic.
- * Version: 1.2
+ * Version: 1.3
  * Author: Init HTML
  * Author URI: https://inithtml.com/
  * Text Domain: init-embed-posts
@@ -18,7 +18,7 @@
 defined( 'ABSPATH' ) || exit;
 
 // Define constants.
-define( 'INIT_PLUGIN_SUITE_IEP_VERSION',        '1.2' );
+define( 'INIT_PLUGIN_SUITE_IEP_VERSION',        '1.3' );
 define( 'INIT_PLUGIN_SUITE_IEP_SLUG',           'init-embed-posts' );
 define( 'INIT_PLUGIN_SUITE_IEP_OPTION',         'init_plugin_suite_embed_posts_settings' );
 define( 'INIT_PLUGIN_SUITE_IEP_NAMESPACE',      'initempo/v1' );
@@ -49,31 +49,5 @@ function init_plugin_suite_embed_posts_enqueue_assets() {
         [],
         INIT_PLUGIN_SUITE_IEP_VERSION
     );
-
-    wp_enqueue_script(
-        'init-embed-ui',
-        INIT_PLUGIN_SUITE_IEP_ASSETS_URL . 'js/init-embed-ui.js',
-        [],
-        INIT_PLUGIN_SUITE_IEP_VERSION,
-        true
-    );
-
-    $config = [
-        'embed_url'        => INIT_PLUGIN_SUITE_IEP_ASSETS_URL . 'js/init-embed.js?v=' . INIT_PLUGIN_SUITE_IEP_VERSION,
-        'product_url'      => INIT_PLUGIN_SUITE_IEP_ASSETS_URL . 'js/init-embed-product.js?v=' . INIT_PLUGIN_SUITE_IEP_VERSION,
-        'i18n'             => [
-            'copied' => __( 'Embed code copied!', 'init-embed-posts' ),
-        ],
-    ];
-
-    wp_localize_script( 'init-embed-ui', 'InitEmbedPostsSettings', $config );
 }
 add_action( 'wp_enqueue_scripts', 'init_plugin_suite_embed_posts_enqueue_assets' );
-
-/**
- * Render embed modal in footer.
- */
-function init_plugin_suite_embed_posts_render_modal() {
-    include INIT_PLUGIN_SUITE_IEP_TEMPLATES_PATH . 'modal-embed-code.php';
-}
-add_action( 'wp_footer', 'init_plugin_suite_embed_posts_render_modal', 20 );

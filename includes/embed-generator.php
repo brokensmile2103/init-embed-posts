@@ -7,9 +7,37 @@ defined( 'ABSPATH' ) || exit;
 function init_plugin_suite_embed_posts_render_button( $atts = [] ) {
     global $post;
     if ( ! $post || empty( $post->ID ) ) return '';
-    
+
     $post_id   = (int) $post->ID;
     $post_type = get_post_type( $post_id );
+
+    wp_enqueue_script(
+        'init-embed-ui',
+        INIT_PLUGIN_SUITE_IEP_ASSETS_URL . 'js/init-embed-ui.js',
+        [],
+        INIT_PLUGIN_SUITE_IEP_VERSION,
+        true
+    );
+
+    $config = [
+        'embed_url'   => INIT_PLUGIN_SUITE_IEP_ASSETS_URL . 'js/init-embed.js?v=' . INIT_PLUGIN_SUITE_IEP_VERSION,
+        'product_url' => INIT_PLUGIN_SUITE_IEP_ASSETS_URL . 'js/init-embed-product.js?v=' . INIT_PLUGIN_SUITE_IEP_VERSION,
+        'i18n'        => [
+            'copied'            => __( 'Embed code copied!', 'init-embed-posts' ),
+            'embed_this_post'   => __( 'Embed this post', 'init-embed-posts' ),
+            'show_featured'     => __( 'Show featured image', 'init-embed-posts' ),
+            'show_meta'         => __( 'Show post meta', 'init-embed-posts' ),
+            'show_image'        => __( 'Show image', 'init-embed-posts' ),
+            'show_review'       => __( 'Show review', 'init-embed-posts' ),
+            'theme'             => __( 'Theme:', 'init-embed-posts' ),
+            'light'             => __( 'Light', 'init-embed-posts' ),
+            'dark'              => __( 'Dark', 'init-embed-posts' ),
+            'auto'              => __( 'Auto', 'init-embed-posts' ),
+            'copy'              => __( 'Copy', 'init-embed-posts' ),
+        ],
+    ];
+
+    wp_localize_script( 'init-embed-ui', 'InitEmbedPostsSettings', $config );
 
     ob_start();
     ?>
