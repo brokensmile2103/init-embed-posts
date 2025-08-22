@@ -3,7 +3,7 @@
  * Plugin Name: Init Embed Posts
  * Plugin URI: https://inithtml.com/plugin/init-embed-posts/
  * Description: Embed any WordPress post externally like a Twitter Card. No iframe, no shortcode – just pure magic.
- * Version: 1.3
+ * Version: 1.4
  * Author: Init HTML
  * Author URI: https://inithtml.com/
  * Text Domain: init-embed-posts
@@ -18,7 +18,7 @@
 defined( 'ABSPATH' ) || exit;
 
 // Define constants.
-define( 'INIT_PLUGIN_SUITE_IEP_VERSION',        '1.3' );
+define( 'INIT_PLUGIN_SUITE_IEP_VERSION',        '1.4' );
 define( 'INIT_PLUGIN_SUITE_IEP_SLUG',           'init-embed-posts' );
 define( 'INIT_PLUGIN_SUITE_IEP_OPTION',         'init_plugin_suite_embed_posts_settings' );
 define( 'INIT_PLUGIN_SUITE_IEP_NAMESPACE',      'initempo/v1' );

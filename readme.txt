@@ -4,7 +4,7 @@ Tags: embed, wordpress card, post preview, woocommerce, rest api
 Requires at least: 5.5
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.3
+Stable tag: 1.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,11 @@ These filters give you full control over how data is rendered and returned.
 - `init_plugin_suite_embed_products_favicon_url`  
   Override favicon for products.
 
+**HTML output filters:**
+
+- `init_plugin_suite_embed_posts_shortcode_html`  
+  Customize HTML output of the `[init_embed_code]` shortcode. Allows complete control over button markup, styling, and attributes.
+
 **Auto-insert locations:**
 
 - `init_embed_insert_locations`  
@@ -123,6 +128,11 @@ Yes. Go to Settings → Init Embed Posts and uncheck all positions.
 4. Embed card – post with images 
 
 == Changelog ==
+
+= 1.4 – August 22, 2025 =
+- Add `init_embed_posts_shortcode_html` filter for customizing shortcode button HTML
+- Allow developers to completely override embed button markup and styling
+- Improved extensibility for theme and plugin developers
 
 = 1.3 – July 9, 2025 =
 - Refactor embed modal: now fully rendered via JavaScript, no PHP template used

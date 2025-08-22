@@ -55,7 +55,17 @@ function init_plugin_suite_embed_posts_render_button( $atts = [] ) {
         </button>
     </div>
     <?php
-    return ob_get_clean();
+    $html = ob_get_clean();
+
+    /**
+     * Filter HTML output của embed shortcode
+     * 
+     * @param string $html      HTML output
+     * @param int    $post_id   Post ID
+     * @param string $post_type Post type
+     * @param array  $atts      Shortcode attributes
+     */
+    return apply_filters( 'init_plugin_suite_embed_posts_shortcode_html', $html, $post_id, $post_type, $atts );
 }
 
 /**

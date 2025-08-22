@@ -82,7 +82,7 @@
 #iep-modal .iep-modal-content {
     background: #fff;
     color: #333;
-    width: 90%;
+    width: 95%;
     max-width: 500px;
     padding: 20px;
     margin: 10% auto;
@@ -244,9 +244,8 @@
 
 /* === DARK MODE SUPPORT === */
 #iep-modal.iep-dark .iep-modal-content {
-    background: #111;
+    background: #1e1e1e;
     color: #eee;
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
 }
 
 #iep-modal.iep-dark .iep-modal-close {

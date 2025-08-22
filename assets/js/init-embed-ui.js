@@ -156,6 +156,34 @@ const IEP = {
     }
 };
 
+// Dark mode auto
+function getEffectiveTheme() {
+    const theme = window.InitPluginSuiteEmbedPostsConfig?.theme || 'light';
+
+    if (theme === 'light' || theme === 'dark') {
+        return theme;
+    }
+
+    // Only if theme is explicitly set to 'auto'
+    if (theme === 'auto') {
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+
+    // Fallback just in case
+    return 'light';
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    const wrappers = document.querySelectorAll('.iep-embed-ui');
+    const modal = document.getElementById('iep-modal');
+    const theme = getEffectiveTheme();
+
+    if (theme === 'dark') {
+        wrappers.forEach(w => w.classList.add('iep-dark'));
+        if (modal) modal.classList.add('iep-dark');
+    }
+});
+
 // ESC để đóng modal
 document.addEventListener('keydown', e => {
     if (e.key === 'Escape') IEP.closeModal();
