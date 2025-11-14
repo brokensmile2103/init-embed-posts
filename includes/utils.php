@@ -12,12 +12,39 @@ function init_plugin_suite_embed_posts_extract_images( $content, $limit = 3 ) {
     $image_urls = [];
 
     if ( empty( $content ) ) {
-        return $image_urls;
+        return apply_filters(
+            'init_plugin_suite_embed_posts_extracted_images',
+            $image_urls,
+            $content,
+            $limit
+        );
     }
 
+    $limit = max( 1, absint( $limit ) );
+
     if ( preg_match_all( '/<img[^>]+src=["\']([^"\']+)["\']/i', $content, $matches ) ) {
-        $image_urls = array_unique( $matches[1] );
-        $image_urls = array_slice( $image_urls, 0, $limit );
+        foreach ( $matches[1] as $url ) {
+            if ( count( $image_urls ) >= $limit ) {
+                break;
+            }
+
+            $url = trim( $url );
+
+            if ( $url === '' ) {
+                continue;
+            }
+
+            // Tránh base64 / blob nếu lỡ có trong content
+            if ( strpos( $url, 'data:' ) === 0 || strpos( $url, 'blob:' ) === 0 ) {
+                continue;
+            }
+
+            $url = esc_url_raw( $url );
+
+            if ( $url && ! in_array( $url, $image_urls, true ) ) {
+                $image_urls[] = $url;
+            }
+        }
     }
 
     /**
