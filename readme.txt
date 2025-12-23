@@ -4,7 +4,7 @@ Tags: embed, wordpress card, post preview, woocommerce, rest api
 Requires at least: 5.5
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.5
+Stable tag: 1.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -128,6 +128,12 @@ Yes. Go to Settings → Init Embed Posts and uncheck all positions.
 4. Embed card – post with images 
 
 == Changelog ==
+
+= 1.6 – December 23, 2025 =
+- Prevent duplicated `InitEmbedPostsSettings` output when shortcode is rendered multiple times on the same page  
+- Ensure embed UI scripts and localized settings are loaded only once per request  
+- Improve shortcode rendering stability when auto-injected at multiple locations  
+- Minor internal optimization to reduce redundant processing during content rendering  
 
 = 1.5 – November 14, 2025 =
 - Improved image extraction logic in REST response for more consistent embed visuals  
