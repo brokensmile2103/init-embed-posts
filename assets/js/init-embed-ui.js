@@ -1,3 +1,16 @@
+// Xác định theme mặc định cho embed UI (nút + modal), theo thứ tự ưu tiên:
+// 1. window.InitPluginSuiteEmbedPostsConfig.theme — cho phép theme/site ghi đè trực tiếp qua JS, ƯU TIÊN CAO NHẤT.
+// 2. InitEmbedPostsSettings.default_theme — setting cấu hình trong trang Settings của plugin.
+// 3. 'light' — fallback cuối cùng.
+function iepGetConfiguredTheme() {
+    const overrideTheme = window.InitPluginSuiteEmbedPostsConfig?.theme;
+    if (overrideTheme === 'light' || overrideTheme === 'dark' || overrideTheme === 'auto') {
+        return overrideTheme;
+    }
+
+    return InitEmbedPostsSettings?.default_theme || 'light';
+}
+
 const IEP = {
     postId: null,
     scriptUrl: InitEmbedPostsSettings?.embed_url || '',
@@ -38,11 +51,11 @@ const IEP = {
 
         // Determine theme for modal
         let modalClass = 'iep-modal';
-        const globalTheme = window.InitPluginSuiteEmbedPostsConfig?.theme || 'light';
+        const defaultTheme = iepGetConfiguredTheme();
 
         if (
-            globalTheme === 'dark' ||
-            (globalTheme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+            defaultTheme === 'dark' ||
+            (defaultTheme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)
         ) {
             modalClass += ' iep-dark';
         }
@@ -65,9 +78,9 @@ const IEP = {
                     <label>
                         ${i18n.theme || 'Theme:'}
                         <select id="iep-theme">
-                            <option value="light">${i18n.light || 'Light'}</option>
-                            <option value="dark">${i18n.dark || 'Dark'}</option>
-                            <option value="auto">${i18n.auto || 'Auto'}</option>
+                            <option value="light" ${defaultTheme === 'light' ? 'selected' : ''}>${i18n.light || 'Light'}</option>
+                            <option value="dark" ${defaultTheme === 'dark' ? 'selected' : ''}>${i18n.dark || 'Dark'}</option>
+                            <option value="auto" ${defaultTheme === 'auto' ? 'selected' : ''}>${i18n.auto || 'Auto'}</option>
                         </select>
                     </label>
 
@@ -158,7 +171,7 @@ const IEP = {
 
 // Dark mode auto
 function getEffectiveTheme() {
-    const theme = window.InitPluginSuiteEmbedPostsConfig?.theme || 'light';
+    const theme = iepGetConfiguredTheme();
 
     if (theme === 'light' || theme === 'dark') {
         return theme;

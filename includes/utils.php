@@ -2,6 +2,26 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
+ * Lấy số lượng ảnh gallery tối đa cho embed card (post & product).
+ *
+ * @return int Giới hạn số ảnh, trong khoảng 1–10.
+ */
+function init_plugin_suite_embed_posts_get_gallery_limit() {
+    $limit = (int) get_option( 'init_embed_gallery_limit', 5 );
+
+    if ( $limit < 1 || $limit > 10 ) {
+        $limit = 5;
+    }
+
+    /**
+     * Filters the gallery image limit used when extracting images for embed cards.
+     *
+     * @param int $limit Number of images to include.
+     */
+    return (int) apply_filters( 'init_plugin_suite_embed_posts_gallery_limit', $limit );
+}
+
+/**
  * Extract image URLs from post content.
  *
  * @param string $content HTML content.

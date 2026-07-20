@@ -27,8 +27,9 @@ function init_plugin_suite_embed_posts_render_button( $atts = [] ) {
             'init-embed-ui',
             'InitEmbedPostsSettings',
             [
-                'embed_url'   => INIT_PLUGIN_SUITE_IEP_ASSETS_URL . 'js/init-embed.js?v=' . INIT_PLUGIN_SUITE_IEP_VERSION,
-                'product_url' => INIT_PLUGIN_SUITE_IEP_ASSETS_URL . 'js/init-embed-product.js?v=' . INIT_PLUGIN_SUITE_IEP_VERSION,
+                'embed_url'     => INIT_PLUGIN_SUITE_IEP_ASSETS_URL . 'js/init-embed.js?v=' . INIT_PLUGIN_SUITE_IEP_VERSION,
+                'product_url'   => INIT_PLUGIN_SUITE_IEP_ASSETS_URL . 'js/init-embed-product.js?v=' . INIT_PLUGIN_SUITE_IEP_VERSION,
+                'default_theme' => get_option( 'init_embed_default_theme', 'light' ),
                 'i18n'        => [
                     'copied'          => __( 'Embed code copied!', 'init-embed-posts' ),
                     'embed_this_post' => __( 'Embed this post', 'init-embed-posts' ),

@@ -2,9 +2,9 @@
 Contributors: brokensmile.2103
 Tags: embed, wordpress card, post preview, woocommerce, rest api
 Requires at least: 5.5
-Tested up to: 6.9
+Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.6
+Stable tag: 1.7
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -34,6 +34,8 @@ GitHub repository: [https://github.com/brokensmile2103/init-embed-posts](https:/
 - Hover effects and modern UI
 - Skeleton loader while waiting for data
 - JS-only, no iframe, no jQuery, no dependency
+- Lazy-loads embed cards as they scroll into view
+- Auto-detects embeds inserted dynamically after page load (AJAX/SPA)
 - Modal UI to generate personalized embed code
 - Smart `<script>` switching:
   - `init-embed.js` for posts
@@ -41,7 +43,9 @@ GitHub repository: [https://github.com/brokensmile2103/init-embed-posts](https:/
 - Embed attributes:
   - `data-theme="light|dark|auto"` – force or auto-detect theme
   - `data-image`, `data-featured`, `data-cart` – control content
-- Cached REST API (immutable, 1 year)
+- Cached REST API (1 year, revalidated via ETag when the post/product is updated)
+- Price range display for WooCommerce variable products
+- Configurable gallery image limit and default embed theme (Settings page)
 - Developer filters to customize data and HTML
 
 == Installation ==
@@ -55,6 +59,15 @@ GitHub repository: [https://github.com/brokensmile2103/init-embed-posts](https:/
 
 These filters give you full control over how data is rendered and returned.
 
+**JS config override (highest priority):**
+
+- `window.InitPluginSuiteEmbedPostsConfig`  
+  Set this object before the page renders (e.g. via `wp_add_inline_script` in a theme) to override embed UI settings in JS, taking priority over the plugin's Settings page. Currently supports:
+  - `theme` – `"light"`, `"dark"`, or `"auto"`. Overrides the "Default embed theme" setting for the embed code generator button/modal.
+
+  Example:
+  `<script>window.InitPluginSuiteEmbedPostsConfig = { theme: 'dark' };</script>`
+
 **REST response filters:**
 
 - `init_plugin_suite_embed_posts_rest_response`  
@@ -65,6 +78,9 @@ These filters give you full control over how data is rendered and returned.
 
 - `init_plugin_suite_embed_posts_view_count_keys`  
   Customize the list of post meta keys used to detect view count. Supports array of meta keys, ordered by priority.
+
+- `init_plugin_suite_embed_posts_gallery_limit`  
+  Override the gallery image limit (defaults to the Settings page value, 1–10) used for both post and product embeds.
 
 **Excerpt filters:**
 
@@ -112,7 +128,7 @@ No. It renders HTML via JS directly.
 Yes, as of v1.1. Just add `data-type="product"` and use the new script.
 
 = Is it fast? =  
-Yes. The REST JSON response is immutable and cacheable via Cloudflare or CDN for 1 year.
+Yes. The REST JSON response is cacheable via Cloudflare or CDN for up to 1 year, and includes an ETag so caches automatically revalidate and pick up fresh data as soon as the post or product is updated.
 
 = Can I restyle the embed card? =  
 Yes. All styles are scoped. You can override with your own CSS.
@@ -128,6 +144,16 @@ Yes. Go to Settings → Init Embed Posts and uncheck all positions.
 4. Embed card – post with images 
 
 == Changelog ==
+
+= 1.7 – July 20, 2026 =
+- Fix stale embed cards: REST responses no longer use `immutable` caching; added `ETag` + `modified_at` (based on post/product last-modified time) so browsers/CDNs revalidate instead of serving year-old data after a post is edited
+- Add lazy-loading for embed cards via `IntersectionObserver`: cards only fetch data when scrolled near the viewport
+- Add public `scan()` API (`IEP_Embed.scan()` for posts, `IEP_EmbedProduct.scan()` for products) plus automatic `MutationObserver` support, so embeds inserted dynamically after page load (AJAX/SPA) are picked up
+- Escape title, excerpt, site name, and other dynamic fields before rendering to prevent HTML/script injection in embed cards
+- Add placeholder icon for product embeds when no thumbnail is available, instead of a broken image
+- Add price range display (e.g. "100.000₫ – 150.000₫") for WooCommerce variable products with `price_min`/`price_max` in the REST response
+- Add new setting: gallery image limit (1–10), replacing the previous hard-coded limit of 5
+- Add new setting: default embed theme, pre-selected in the embed code generator modal (`window.InitPluginSuiteEmbedPostsConfig.theme` still takes top priority when set by a theme/site, falling back to this setting, then to `light`)
 
 = 1.6 – December 23, 2025 =
 - Prevent duplicated `InitEmbedPostsSettings` output when shortcode is rendered multiple times on the same page  

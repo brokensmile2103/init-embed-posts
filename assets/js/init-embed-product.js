@@ -2,6 +2,19 @@
     const EMBED_CLASS = 'init-embed-product';
     const STYLE_ID = 'init-embed-product-style';
 
+    // Escape dữ liệu trước khi chèn vào innerHTML, tránh XSS nếu title/site_name...
+    // lỡ chứa ký tự HTML lạ.
+    function escapeHTML(value) {
+        if (value === null || value === undefined) return '';
+        return String(value).replace(/[&<>"']/g, (ch) => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        }[ch]));
+    }
+
     function injectStyles() {
         if (document.getElementById(STYLE_ID)) return;
 
@@ -51,6 +64,19 @@
     height: 100%;
     object-fit: cover;
     display: block;
+}
+.${EMBED_CLASS} .embed-image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #bbb;
+    background: #f2f2f2;
+}
+.${EMBED_CLASS}[data-theme="dark"] .embed-image-placeholder {
+    background: #1a1a1a;
+    color: #555;
 }
 .${EMBED_CLASS} .embed-badge {
     position: absolute;
@@ -181,11 +207,17 @@
         const {
             title, url, thumbnail,
             price, regular_price, sale_price, currency,
+            price_min, price_max, product_type,
             site_name, site_domain
         } = data;
 
         const theme = container.dataset.theme || 'light';
-        const cartText = container.dataset.cart || 'Add to cart';
+        const cartText = escapeHTML(container.dataset.cart || 'Add to cart');
+
+        const safeTitle = escapeHTML(title);
+        const safeUrl = escapeHTML(url);
+        const safeSiteName = escapeHTML(site_name);
+        const safeSiteDomain = escapeHTML(site_domain);
 
         const isDiscount = sale_price && sale_price < regular_price;
         const finalPrice = isDiscount ? sale_price : (price || regular_price);
@@ -193,24 +225,43 @@
             ? `<div class="embed-badge">${Math.round(100 - (sale_price / regular_price * 100))}% OFF</div>`
             : '';
 
-        const priceHTML = isDiscount
-            ? `<div class="embed-price-wrapper">
+        // Sản phẩm variable có nhiều biến thể với giá khác nhau: hiển thị khoảng giá thay vì 1 giá cố định.
+        const isPriceRange = product_type === 'variable'
+            && typeof price_min === 'number'
+            && typeof price_max === 'number'
+            && price_min !== price_max;
+
+        let priceHTML;
+        if (isPriceRange) {
+            priceHTML = `<div class="embed-price-wrapper">
+                    <span class="embed-price">${formatPrice(price_min, currency)} – ${formatPrice(price_max, currency)}</span>
+               </div>`;
+        } else if (isDiscount) {
+            priceHTML = `<div class="embed-price-wrapper">
                     <span class="embed-price">${formatPrice(sale_price, currency)}</span>
                     <del>${formatPrice(regular_price, currency)}</del>
-               </div>`
-            : `<div class="embed-price-wrapper">
+               </div>`;
+        } else {
+            priceHTML = `<div class="embed-price-wrapper">
                     <span class="embed-price">${formatPrice(finalPrice, currency)}</span>
                </div>`;
+        }
+
+        const svgImagePlaceholder = `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="1.5"></rect><circle cx="8" cy="10" r="1.5" fill="currentColor"></circle><path d="M4 17l5-5 3 3 4-4 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>`;
+
+        const imageHTML = thumbnail
+            ? `<img src="${escapeHTML(thumbnail)}" alt="${safeTitle}" loading="lazy">`
+            : `<div class="embed-image-placeholder">${svgImagePlaceholder}</div>`;
 
         container.innerHTML = `
-            <a class="embed-inner" href="${url}" target="_blank" rel="noopener noreferrer">
+            <a class="embed-inner" href="${safeUrl}" target="_blank" rel="noopener noreferrer">
                 <div class="embed-image-wrapper">
                     ${badge}
-                    <img src="${thumbnail}" alt="Product image" loading="lazy">
+                    ${imageHTML}
                 </div>
                 <div class="embed-info">
-                    <div class="embed-meta">${site_name} @${site_domain}</div>
-                    <div class="embed-title">${title}</div>
+                    <div class="embed-meta">${safeSiteName} @${safeSiteDomain}</div>
+                    <div class="embed-title">${safeTitle}</div>
                     ${priceHTML}
                     <div class="embed-cart">${cartText}</div>
                 </div>
@@ -245,9 +296,71 @@
         }
     }
 
-    function init() {
-        document.querySelectorAll(`.${EMBED_CLASS}[data-id][data-origin][data-type="product"]`).forEach(processEmbed);
+    let lazyObserver = null;
+
+    function getLazyObserver() {
+        if (lazyObserver || !('IntersectionObserver' in window)) return lazyObserver;
+
+        lazyObserver = new IntersectionObserver((entries, obs) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    obs.unobserve(entry.target);
+                    processEmbed(entry.target);
+                }
+            });
+        }, { rootMargin: '200px 0px', threshold: 0.01 });
+
+        return lazyObserver;
     }
+
+    // Đưa 1 phần tử embed vào hàng đợi: chỉ fetch khi sắp cuộn tới (lazy-load).
+    function queueEmbed(el) {
+        if (el.dataset.iepQueued === '1') return;
+        el.dataset.iepQueued = '1';
+
+        const observer = getLazyObserver();
+        if (observer) {
+            observer.observe(el);
+        } else {
+            processEmbed(el);
+        }
+    }
+
+    // Quét 1 vùng DOM (mặc định toàn trang) để tìm embed product chưa xử lý.
+    // Public API: window.IEP_EmbedProduct.scan(root) — gọi lại sau khi bro tự chèn HTML động (AJAX/SPA).
+    function scan(root) {
+        injectStyles();
+
+        (root || document)
+            .querySelectorAll(`.${EMBED_CLASS}[data-id][data-origin][data-type="product"]`)
+            .forEach(queueEmbed);
+    }
+
+    function watchForDynamicEmbeds() {
+        if (!('MutationObserver' in window)) return;
+
+        let scheduled = false;
+        const mutationObserver = new MutationObserver((mutations) => {
+            const hasAddedNodes = mutations.some(m => m.addedNodes && m.addedNodes.length);
+            if (!hasAddedNodes || scheduled) return;
+
+            scheduled = true;
+            requestAnimationFrame(() => {
+                scheduled = false;
+                scan(document);
+            });
+        });
+
+        mutationObserver.observe(document.body, { childList: true, subtree: true });
+    }
+
+    function init() {
+        scan(document);
+        watchForDynamicEmbeds();
+    }
+
+    window.IEP_EmbedProduct = window.IEP_EmbedProduct || {};
+    window.IEP_EmbedProduct.scan = function (root) { scan(root); };
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);

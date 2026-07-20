@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Init Embed Posts\n"
+"Project-Id-Version: Init Embed Posts 1.7\n"
 "Language: vi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -36,6 +36,9 @@ msgstr ""
 msgid "Init Embed Posts Settings"
 msgstr ""
 
+msgid "Init Embed Posts"
+msgstr ""
+
 msgid "Auto-insert embed button at"
 msgstr ""
 
@@ -46,6 +49,9 @@ msgid "Before the content"
 msgstr ""
 
 msgid "After the content"
+msgstr ""
+
+msgid "After the product meta"
 msgstr ""
 
 msgid "Alternatively, you can insert the embed button manually by adding the <code>[init_embed_code]</code> shortcode anywhere inside the loop."
@@ -64,4 +70,22 @@ msgid "Dark"
 msgstr ""
 
 msgid "Auto"
+msgstr ""
+
+msgid "Post not found"
+msgstr ""
+
+msgid "Product not found"
+msgstr ""
+
+msgid "Gallery image limit"
+msgstr ""
+
+msgid "Maximum number of images shown in the gallery row of an embed card (1–10)."
+msgstr ""
+
+msgid "Default embed theme"
+msgstr ""
+
+msgid "Theme pre-selected in the embed code generator modal. Visitors can still override it per embed via data-theme."
 msgstr ""

@@ -2,6 +2,19 @@
     const EMBED_CLASS = 'init-embed';
     const STYLE_ID = 'init-embed-style';
 
+    // Escape dữ liệu trước khi chèn vào innerHTML, tránh XSS nếu title/excerpt/site_name...
+    // lỡ chứa ký tự HTML lạ (từ theme/plugin khác, hoặc dữ liệu không đáng tin cậy).
+    function escapeHTML(value) {
+        if (value === null || value === undefined) return '';
+        return String(value).replace(/[&<>"']/g, (ch) => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        }[ch]));
+    }
+
     function injectStyles() {
         if (document.getElementById(STYLE_ID)) return;
 
@@ -230,7 +243,14 @@
             review
         } = data;
 
-        const dateStr = published_at;
+        const dateStr = escapeHTML(published_at);
+        const safeTitle = escapeHTML(title);
+        const safeExcerpt = escapeHTML(excerpt);
+        const safeSiteName = escapeHTML(site_name);
+        const safeSiteDomain = escapeHTML(site_domain);
+        const safeUrl = escapeHTML(url);
+        const safeFavicon = escapeHTML(favicon);
+        const safeThumbnail = escapeHTML(thumbnail);
 
         const showMeta = container.dataset.meta !== '0';
         const showReview = container.dataset.review !== '0';
@@ -248,7 +268,7 @@
         if (showFeatured && thumbnail) {
             featuredHTML = `
                 <div class="embed-featured">
-                    <img src="${thumbnail}" loading="lazy" alt="Featured image">
+                    <img src="${safeThumbnail}" loading="lazy" alt="Featured image">
                 </div>`;
         }
 
@@ -278,7 +298,7 @@
         if (showImage && images && images.length) {
             imgHTML = `
                 <div class="embed-images">
-                    ${images.map(src => `<img src="${src}" loading="lazy">`).join('')}
+                    ${images.map(src => `<img src="${escapeHTML(src)}" loading="lazy">`).join('')}
                 </div>`;
         }
 
@@ -312,17 +332,17 @@
 
         // Final render
         container.innerHTML = `
-            <a class="embed-inner" href="${url}" target="_blank" rel="noopener noreferrer">
+            <a class="embed-inner" href="${safeUrl}" target="_blank" rel="noopener noreferrer">
                 ${featuredHTML}
                 <div class="embed-header">
-                    <img class="embed-favicon" src="${favicon}" alt="favicon">
+                    <img class="embed-favicon" src="${safeFavicon}" alt="favicon">
                     <div>
-                        <div class="embed-meta">${site_name} @${site_domain}</div>
+                        <div class="embed-meta">${safeSiteName} @${safeSiteDomain}</div>
                         ${metaInfo}
                     </div>
                 </div>
-                <div class="embed-title max-2-line">${title}</div>
-                <div class="embed-excerpt max-4-line">${excerpt}</div>
+                <div class="embed-title max-2-line">${safeTitle}</div>
+                <div class="embed-excerpt max-4-line">${safeExcerpt}</div>
                 ${reviewHTML}
                 ${imgHTML}
             </a>
@@ -363,16 +383,76 @@
         }
     }
 
-    function init() {
+    let lazyObserver = null;
+
+    function getLazyObserver() {
+        if (lazyObserver || !('IntersectionObserver' in window)) return lazyObserver;
+
+        lazyObserver = new IntersectionObserver((entries, obs) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    obs.unobserve(entry.target);
+                    processEmbed(entry.target);
+                }
+            });
+        }, { rootMargin: '200px 0px', threshold: 0.01 });
+
+        return lazyObserver;
+    }
+
+    // Đưa 1 phần tử embed vào hàng đợi: chỉ fetch khi sắp cuộn tới (lazy-load).
+    // Nếu trình duyệt không hỗ trợ IntersectionObserver thì fetch ngay như trước.
+    function queueEmbed(el) {
+        if (el.dataset.iepQueued === '1') return;
+        el.dataset.iepQueued = '1';
+
+        const observer = getLazyObserver();
+        if (observer) {
+            observer.observe(el);
+        } else {
+            processEmbed(el);
+        }
+    }
+
+    // Quét 1 vùng DOM (mặc định toàn trang) để tìm embed post chưa xử lý.
+    // Public API: window.IEP_Embed.scan(root) — gọi lại sau khi bro tự chèn HTML động (AJAX/SPA).
+    function scan(root) {
         injectStyles();
 
-        document.querySelectorAll(`.${EMBED_CLASS}[data-id][data-origin]`).forEach(el => {
+        (root || document).querySelectorAll(`.${EMBED_CLASS}[data-id][data-origin]`).forEach(el => {
             const type = el.dataset.type || 'post';
             if (type !== 'product') {
-                processEmbed(el);
+                queueEmbed(el);
             }
         });
     }
+
+    function watchForDynamicEmbeds() {
+        if (!('MutationObserver' in window)) return;
+
+        let scheduled = false;
+        const mutationObserver = new MutationObserver((mutations) => {
+            const hasAddedNodes = mutations.some(m => m.addedNodes && m.addedNodes.length);
+            if (!hasAddedNodes || scheduled) return;
+
+            // Gộp nhiều mutation liên tiếp lại thành 1 lần quét, tránh tốn CPU.
+            scheduled = true;
+            requestAnimationFrame(() => {
+                scheduled = false;
+                scan(document);
+            });
+        });
+
+        mutationObserver.observe(document.body, { childList: true, subtree: true });
+    }
+
+    function init() {
+        scan(document);
+        watchForDynamicEmbeds();
+    }
+
+    window.IEP_Embed = window.IEP_Embed || {};
+    window.IEP_Embed.scan = function (root) { scan(root); };
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
